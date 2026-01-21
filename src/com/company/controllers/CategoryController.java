@@ -1,12 +1,12 @@
-﻿package com.company.controllers;
+package com.company.controllers;
 
 import com.company.controllers.interfaces.ICategoryController;
+import com.company.models.Category;
 import com.company.models.enums.CategoryType;
 import com.company.repositories.interfaces.ICategoryRepository;
-import com.company.models.Category;
 import java.util.List;
 
-public abstract class CategoryController implements ICategoryController {
+public class CategoryController implements ICategoryController {
 
     private final ICategoryRepository repo;
 
@@ -25,7 +25,8 @@ public abstract class CategoryController implements ICategoryController {
             return false;
         }
 
-        Category category = new Category(null, userId, name.trim(), CategoryType.valueOf(type));
+        CategoryType categoryType = CategoryType.valueOf(type.trim().toUpperCase());
+        Category category = new Category(null, userId, name.trim(), categoryType);
         return repo.create(category);
     }
 
@@ -33,8 +34,25 @@ public abstract class CategoryController implements ICategoryController {
     public List<Category> listCategories(Integer userId, CategoryType type) {
         if (type == null) {
             System.out.println("Category type cannot be null!");
-            return List.of();
+            return java.util.Collections.emptyList();
         }
         return repo.getByType(userId, type);
+    }
+
+    @Override
+    public void showCategories(int userId, String type) {
+        if (type == null || type.trim().isEmpty()) {
+            System.out.println("Category type cannot be empty!");
+            return;
+        }
+        CategoryType categoryType = CategoryType.valueOf(type.trim().toUpperCase());
+        List<Category> categories = listCategories(userId, categoryType);
+        if (categories.isEmpty()) {
+            System.out.println("No categories.");
+            return;
+        }
+        for (Category category : categories) {
+            System.out.println(category);
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿package com.company.controllers;
+package com.company.controllers;
 
 import com.company.controllers.interfaces.ITransactionController;
 import com.company.exceptions.NotEnoughMoneyException;
@@ -45,7 +45,7 @@ public class TransactionController implements ITransactionController {
                 null, comment
         );
 
-        System.out.println(transactionRepo.create(t) ? "INCOME saved ✅" : "INCOME not saved ❌");
+        System.out.println(transactionRepo.create(t) ? "INCOME saved." : "INCOME not saved.");
     }
 
     @Override
@@ -77,7 +77,7 @@ public class TransactionController implements ITransactionController {
                 null, comment
         );
 
-        System.out.println(transactionRepo.create(t) ? "EXPENSE saved ✅" : "EXPENSE not saved ❌");
+        System.out.println(transactionRepo.create(t) ? "EXPENSE saved." : "EXPENSE not saved.");
     }
 
     @Override
@@ -122,7 +122,7 @@ public class TransactionController implements ITransactionController {
                 null, comment
         );
 
-        System.out.println(transactionRepo.create(t) ? "TRANSFER saved ✅" : "TRANSFER not saved ❌");
+        System.out.println(transactionRepo.create(t) ? "TRANSFER saved." : "TRANSFER not saved.");
     }
 
     @Override
@@ -130,23 +130,27 @@ public class TransactionController implements ITransactionController {
         List<Transaction> list = transactionRepo.getByUserId(userId);
 
         if (list.isEmpty()) {
-            System.out.println("No transactions for user " + userId);
+            System.out.println("No transactions.");
             return;
         }
 
-        System.out.println("=== Transactions of user " + userId + " ===");
+        System.out.println("=== Transactions (sorted by id) ===");
         for (Transaction t : list) {
-            System.out.println(
-                    "id=" + t.getId() +
-                            ", type=" + t.getType() +
-                            ", amount=" + t.getAmount() +
-                            ", categoryId=" + t.getCategoryId() +
-                            ", from=" + t.getAccountFromId() +
-                            ", to=" + t.getAccountToId() +
-                            ", createdAt=" + t.getCreatedAt() +
-                            ", comment=" + t.getComment()
+            String categoryId = t.getCategoryId() == null ? "-" : t.getCategoryId().toString();
+            String fromId = t.getAccountFromId() == null ? "-" : t.getAccountFromId().toString();
+            String toId = t.getAccountToId() == null ? "-" : t.getAccountToId().toString();
+            String comment = t.getComment() == null || t.getComment().trim().isEmpty() ? "-" : t.getComment();
+            System.out.printf(
+                    "id=%d | type=%s | amount=%.2f | category=%s | from=%s | to=%s | at=%s | comment=%s%n",
+                    t.getId(),
+                    t.getType(),
+                    t.getAmount(),
+                    categoryId,
+                    fromId,
+                    toId,
+                    t.getCreatedAt(),
+                    comment
             );
         }
     }
 }
-

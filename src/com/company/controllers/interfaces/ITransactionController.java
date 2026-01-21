@@ -1,4 +1,4 @@
-﻿package com.company.controllers.interfaces;
+package com.company.controllers.interfaces;
 
 public interface ITransactionController {
     void addIncome(int userId, int accountToId, int categoryId, double amount, String comment);

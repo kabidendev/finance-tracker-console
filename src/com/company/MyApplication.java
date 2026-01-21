@@ -1,12 +1,17 @@
-﻿package com.company;
+package com.company;
 
 import com.company.controllers.interfaces.IAccountController;
 import com.company.controllers.interfaces.IAuthController;
 import com.company.controllers.interfaces.ICategoryController;
 import com.company.controllers.interfaces.IReportController;
 import com.company.controllers.interfaces.ITransactionController;
+import com.company.models.Account;
+import com.company.models.Category;
 import com.company.models.User;
+import com.company.models.enums.CategoryType;
 import com.company.utils.InputUtils;
+
+import java.util.List;
 
 public class MyApplication {
     private final IAuthController authController;
@@ -92,7 +97,7 @@ public class MyApplication {
     private boolean mainMenu() {
         User user = authController.getCurrentUser();
 
-        System.out.println("=== Main меню ===");
+        System.out.println("=== Main menu ===");
         System.out.println("User: " + user.getName() + " (" + user.getRole() + ")");
         System.out.println("1. Accounts");
         System.out.println("2. Categories");
@@ -153,7 +158,8 @@ public class MyApplication {
                         System.out.println();
                         break;
                     }
-                    accountController.showAccounts(userId);
+                    List<Account> accounts = accountController.listAccounts(userId);
+                    printAccountList(accounts);
                     System.out.println();
                     break;
                 case 3:
@@ -163,7 +169,8 @@ public class MyApplication {
                         break;
                     }
                     int accountId = InputUtils.readInt("Account id: ");
-                    accountController.showAccountDetails(accountId);
+                    Account account = accountController.showAccountDetails(accountId);
+                    printAccountDetails(account);
                     System.out.println();
                     break;
                 case 0:
@@ -204,7 +211,8 @@ public class MyApplication {
                         System.out.println();
                         break;
                     }
-                    categoryController.showCategories(userId, "INCOME");
+                    List<Category> incomeCategories = categoryController.listCategories(userId, CategoryType.INCOME);
+                    printCategoryList("INCOME", incomeCategories);
                     System.out.println();
                     break;
                 case 3:
@@ -213,7 +221,8 @@ public class MyApplication {
                         System.out.println();
                         break;
                     }
-                    categoryController.showCategories(userId, "EXPENSE");
+                    List<Category> expenseCategories = categoryController.listCategories(userId, CategoryType.EXPENSE);
+                    printCategoryList("EXPENSE", expenseCategories);
                     System.out.println();
                     break;
                 case 0:
@@ -295,6 +304,59 @@ public class MyApplication {
                     System.out.println("Unknown option.");
                     System.out.println();
             }
+        }
+    }
+
+    private void printAccountList(List<Account> accounts) {
+        if (accounts.isEmpty()) {
+            System.out.println("No accounts.");
+            return;
+        }
+        System.out.println("Accounts (sorted by id):");
+        int index = 1;
+        for (Account account : accounts) {
+            String id = account.getId() == null ? "-" : account.getId().toString();
+            System.out.printf("%d) id=%s | name=%s | balance=%.2f%n",
+                    index,
+                    id,
+                    account.getName(),
+                    account.getBalance()
+            );
+            index++;
+        }
+    }
+
+    private void printAccountDetails(Account account) {
+        if (account == null) {
+            System.out.println("Account not found.");
+            return;
+        }
+        String id = account.getId() == null ? "-" : account.getId().toString();
+        System.out.printf("Account: id=%s | name=%s | balance=%.2f%n",
+                id,
+                account.getName(),
+                account.getBalance()
+        );
+    }
+
+    private void printCategoryList(String label, List<Category> categories) {
+        if (categories.isEmpty()) {
+            System.out.println("No categories.");
+            return;
+        }
+        System.out.println("Categories " + label + " (sorted by id):");
+        int index = 1;
+        for (Category category : categories) {
+            String id = category.getId() == null ? "-" : category.getId().toString();
+            String userId = category.getUserId() == null ? "-" : category.getUserId().toString();
+            System.out.printf("%d) id=%s | name=%s | type=%s | userId=%s%n",
+                    index,
+                    id,
+                    category.getName(),
+                    category.getType(),
+                    userId
+            );
+            index++;
         }
     }
 }

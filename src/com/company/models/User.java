@@ -1,4 +1,4 @@
-﻿package com.company.models;
+package com.company.models;
 
 import com.company.models.enums.Role;
 

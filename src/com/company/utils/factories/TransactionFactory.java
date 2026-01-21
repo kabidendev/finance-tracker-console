@@ -1,4 +1,4 @@
-﻿package com.company.utils.factories;
+package com.company.utils.factories;
 
 public class TransactionFactory {
 }

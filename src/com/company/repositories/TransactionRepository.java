@@ -1,4 +1,4 @@
-﻿package com.company.repositories;
+package com.company.repositories;
 
 import com.company.data.interfaces.IDB;
 import com.company.models.Transaction;
@@ -78,7 +78,7 @@ public class TransactionRepository implements ITransactionRepository {
     public List<Transaction> getByUserId(int userId) {
         String sql =
                 "SELECT id, user_id, type, amount, category_id, account_from_id, account_to_id, created_at, comment " +
-                        "FROM transactions WHERE user_id = ? ORDER BY created_at DESC";
+                        "FROM transactions WHERE user_id = ? ORDER BY id";
 
         List<Transaction> list = new ArrayList<>();
 
@@ -126,5 +126,4 @@ public class TransactionRepository implements ITransactionRepository {
         );
     }
 }
-
 

@@ -1,4 +1,4 @@
-﻿package com.company.models;
+package com.company.models;
 
 public class Account {
     private Integer id;
@@ -15,6 +15,10 @@ public class Account {
         this.balance = balance;
     }
 
+    public Account(int userId, String name, double balance) {
+        this(null, userId, name, balance);
+    }
+
     public Integer getId() { return id; }
     public int getUserId() { return userId; }
     public String getName() { return name; }
@@ -24,5 +28,9 @@ public class Account {
     public void setUserId(int userId) { this.userId = userId; }
     public void setName(String name) { this.name = name; }
     public void setBalance(double balance) { this.balance = balance; }
-}
 
+    @Override
+    public String toString() {
+        return "Account{id=" + id + ", name='" + name + "', balance=" + balance + "}";
+    }
+}
