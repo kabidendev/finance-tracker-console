@@ -1,7 +1,10 @@
 ﻿package com.company.controllers.interfaces;
 
+import com.company.models.Account;
+import java.util.List;
+
 public interface IAccountController {
-    void createAccount(int userId, String name, double initialBalance);
-    void showAccounts(int userId);
-    void showAccountDetails(int accountId);
+    Account createAccount(int userId, String name, double initialBalance);
+    List<Account> listAccounts(int userId);
+    Account showAccountDetails(int accountId);
 }

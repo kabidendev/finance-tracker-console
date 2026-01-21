@@ -14,6 +14,7 @@ public class DBInitializer {
 
     public void init() {
         createUsersTable();
+        createAccountsTable();
     }
 
     private void createUsersTable() {
@@ -24,6 +25,22 @@ public class DBInitializer {
                 "password VARCHAR(100) NOT NULL," +
                 "role VARCHAR(20) NOT NULL" +
                 ")";
+        try (Connection con = db.getConnection(); Statement st = con.createStatement()) {
+            st.execute(sql);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void createAccountsTable() {
+        String sql = "CREATE TABLE IF NOT EXISTS accounts (" +
+                "id SERIAL PRIMARY KEY," +
+                "user_id INT NOT NULL," +
+                "name VARCHAR(100) NOT NULL," +
+                "balance DOUBLE PRECISION NOT NULL DEFAULT 0," +
+                "CONSTRAINT fk_accounts_user FOREIGN KEY (user_id) REFERENCES users(id)" +
+                ");";
+
         try (Connection con = db.getConnection(); Statement st = con.createStatement()) {
             st.execute(sql);
         } catch (Exception e) {
