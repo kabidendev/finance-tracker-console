@@ -1,4 +1,4 @@
-﻿package com.company.controllers.interfaces;
+package com.company.controllers.interfaces;
 
 import com.company.models.User;
 

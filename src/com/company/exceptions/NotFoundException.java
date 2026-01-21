@@ -1,4 +1,4 @@
-﻿package com.company.exceptions;
+package com.company.exceptions;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) {

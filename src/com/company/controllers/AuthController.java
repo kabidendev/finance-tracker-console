@@ -1,4 +1,4 @@
-﻿package com.company.controllers;
+package com.company.controllers;
 
 import com.company.controllers.interfaces.IAuthController;
 import com.company.exceptions.ValidationException;

@@ -1,4 +1,4 @@
-﻿package com.company.repositories.interfaces;
+package com.company.repositories.interfaces;
 
 import com.company.models.Category;
 import com.company.models.enums.CategoryType;
