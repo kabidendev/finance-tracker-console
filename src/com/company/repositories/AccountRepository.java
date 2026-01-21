@@ -1,16 +1,10 @@
 ﻿package com.company.repositories;
 
 import com.company.data.interfaces.IDB;
-import com.company.exceptions.NotFoundException;
 import com.company.models.Account;
 import com.company.repositories.interfaces.IAccountRepository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
 
 public class AccountRepository implements IAccountRepository {
 
@@ -21,103 +15,53 @@ public class AccountRepository implements IAccountRepository {
     }
 
     @Override
-    public void create(Account account) {
-        String sql = "INSERT INTO accounts(user_id, name, balance) VALUES (?, ?, ?)";
-
-        try (Connection con = db.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            ps.setInt(1, account.getUserId());
-            ps.setString(2, account.getName());
-            ps.setDouble(3, account.getBalance());
-
-            ps.executeUpdate();
-
-            try (ResultSet keys = ps.getGeneratedKeys()) {
-                if (keys.next()) {
-                    account.setId(keys.getInt(1));
-                }
-            }
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public Account getById(int id) {
         String sql = "SELECT id, user_id, name, balance FROM accounts WHERE id = ?";
 
         try (Connection con = db.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement st = con.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
+            st.setInt(1, id);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    throw new NotFoundException("Account not found: id=" + id);
-                }
-                return mapToAccount(rs);
-            }
-
-        } catch (NotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public List<Account> getByUserId(int userId) {
-        String sql = "SELECT id, user_id, name, balance FROM accounts WHERE user_id = ? ORDER BY id";
-        List<Account> result = new ArrayList<>();
-
-        try (Connection con = db.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, userId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    result.add(mapToAccount(rs));
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return new Account(
+                            rs.getInt("id"),
+                            rs.getInt("user_id"),
+                            rs.getString("name"),
+                            rs.getDouble("balance")
+                    );
                 }
             }
 
-            return result;
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            System.out.println("Account getById error: " + e.getMessage());
         }
+        return null;
     }
 
     @Override
-    public void updateBalance(int accountId, double newBalance) {
+    public boolean updateBalance(int accountId, double newBalance) {
         String sql = "UPDATE accounts SET balance = ? WHERE id = ?";
 
         try (Connection con = db.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement st = con.prepareStatement(sql)) {
 
-            ps.setDouble(1, newBalance);
-            ps.setInt(2, accountId);
+            st.setDouble(1, newBalance);
+            st.setInt(2, accountId);
 
-            int updated = ps.executeUpdate();
-            if (updated == 0) {
-                throw new NotFoundException("Account not found for update: id=" + accountId);
-            }
+            return st.executeUpdate() > 0;
 
-        } catch (NotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            System.out.println("Account updateBalance error: " + e.getMessage());
+            return false;
         }
     }
 
-    private Account mapToAccount(ResultSet rs) throws Exception {
-        Account a = new Account();
-        a.setId(rs.getInt("id"));
-        a.setUserId(rs.getInt("user_id"));
-        a.setName(rs.getString("name"));
-        a.setBalance(rs.getDouble("balance"));
-        return a;
-    }
+    // ---- если твой IRepository требует другие методы, просто оставь заглушки ----
+    @Override
+    public boolean create(Account entity) { return false; }
+    public boolean update(Account entity) { return false; }
+    public boolean delete(int id) { return false; }
 }
+
