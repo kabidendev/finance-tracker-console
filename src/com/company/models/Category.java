@@ -3,48 +3,53 @@ package com.company.models;
 import com.company.models.enums.CategoryType;
 
 public class Category {
-    private Integer id;
+    private int id;
     private Integer userId;
     private String name;
     private CategoryType type;
 
-    public Category(Integer id, Integer userId, String name, CategoryType type) {
+    public Category() {
+    }
+
+    public Category(Integer userId, String name, CategoryType type) {
+        this.userId = userId;
+        this.name = name;
+        this.type = type;
+    }
+
+    public Category(int id, Integer userId, String name, CategoryType type) {
         this.id = id;
         this.userId = userId;
         this.name = name;
         this.type = type;
     }
 
-    public Category(Integer userId, String name, CategoryType type) {
-        this(null, userId, name, type);
+    public int getId() {
+        return id;
     }
 
-    public Integer getId() {
-        return id;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public Integer getUserId() {
         return userId;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public CategoryType getType() {
-        return type;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    public CategoryType getType() {
+        return type;
     }
 
     public void setType(CategoryType type) {

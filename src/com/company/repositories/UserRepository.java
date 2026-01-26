@@ -8,6 +8,10 @@ import com.company.repositories.interfaces.IUserRepository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserRepository implements IUserRepository {
     private final IDB db;
@@ -17,66 +21,69 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
-    public int create(User user) {
-        String sql = "INSERT INTO users(name, email, password, role) VALUES (?, ?, ?, ?) RETURNING id";
-        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, user.getName());
-            ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPassword());
-            ps.setString(4, user.getRole().name());
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    int id = rs.getInt(1);
-                    user.setId(id);
-                    return id;
+    public User create(User user) {
+        String sql = "INSERT INTO users (email, password, role) VALUES (?, ?, ?)";
+        Role role = user.getRole() == null ? Role.USER : user.getRole();
+        try (Connection connection = db.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, user.getEmail());
+            statement.setString(2, user.getPassword());
+            statement.setString(3, role.name());
+            statement.executeUpdate();
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                if (keys.next()) {
+                    user.setId(keys.getInt(1));
                 }
             }
-            return 0;
-        } catch (Exception e) {
+            user.setRole(role);
+            return user;
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public User getByEmail(String email) {
-        String sql = "SELECT id, name, email, password, role FROM users WHERE email = ?";
-        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, email);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    int id = rs.getInt("id");
-                    String name = rs.getString("name");
-                    String mail = rs.getString("email");
-                    String password = rs.getString("password");
-                    String role = rs.getString("role");
-                    return new User(id, name, mail, password, Role.valueOf(role));
+        String sql = "SELECT id, email, password, role FROM users WHERE email = ?";
+        try (Connection connection = db.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, email);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapUser(resultSet);
                 }
-                return null;
             }
-        } catch (Exception e) {
+            return null;
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public User getById(int id) {
-        String sql = "SELECT id, name, email, password, role FROM users WHERE id = ?";
-        try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    int userId = rs.getInt("id");
-                    String name = rs.getString("name");
-                    String mail = rs.getString("email");
-                    String password = rs.getString("password");
-                    String role = rs.getString("role");
-                    return new User(userId, name, mail, password, Role.valueOf(role));
-                }
-                return null;
+    public List<User> getAll() {
+        String sql = "SELECT id, email, password, role FROM users ORDER BY id";
+        List<User> users = new ArrayList<>();
+        try (Connection connection = db.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                users.add(mapUser(resultSet));
             }
-        } catch (Exception e) {
+            return users;
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private User mapUser(ResultSet resultSet) throws SQLException {
+        int id = resultSet.getInt("id");
+        String email = resultSet.getString("email");
+        String password = resultSet.getString("password");
+        String roleValue = resultSet.getString("role");
+        Role role = Role.USER;
+        if (roleValue != null && !roleValue.isBlank()) {
+            role = Role.valueOf(roleValue.trim().toUpperCase());
+        }
+        return new User(id, email, password, role);
     }
 }
