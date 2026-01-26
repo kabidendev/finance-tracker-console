@@ -30,7 +30,7 @@ public class Main {
 
         IDB db = new PostgresDB(url, user, password);
         DBInitializer initializer = new DBInitializer(db);
-        initializer.init();
+        initializer.initialize();
 
         IUserRepository userRepository = new UserRepository(db);
         IAuthController authController = new AuthController(userRepository);
@@ -42,7 +42,7 @@ public class Main {
         IAccountController accountController = new AccountController(accountRepository);
         ICategoryController categoryController = new CategoryController(categoryRepository);
         ITransactionController transactionController = new TransactionController(transactionRepository, accountRepository);
-        IReportController reportController = new ReportController();
+        IReportController reportController = new ReportController(transactionRepository);
 
         MyApplication app = new MyApplication(
                 authController,

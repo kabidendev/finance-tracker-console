@@ -2,6 +2,7 @@ package com.company.repositories;
 
 import com.company.data.interfaces.IDB;
 import com.company.models.Transaction;
+import com.company.models.dto.TransactionFullView;
 import com.company.models.enums.TransactionType;
 import com.company.repositories.interfaces.ITransactionRepository;
 
@@ -99,6 +100,51 @@ public class TransactionRepository implements ITransactionRepository {
 
         return list;
     }
+
+    @Override
+    public List<TransactionFullView> getFullByUserId(int userId) {
+        String sql =
+                "SELECT t.id, t.type, t.amount, t.created_at, t.comment, " +
+                        "af.name AS from_account_name, " +
+                        "at.name AS to_account_name, " +
+                        "c.name AS category_name, " +
+                        "c.type AS category_type " +
+                        "FROM transactions t " +
+                        "LEFT JOIN accounts af ON t.account_from_id = af.id " +
+                        "LEFT JOIN accounts at ON t.account_to_id = at.id " +
+                        "LEFT JOIN categories c ON t.category_id = c.id " +
+                        "WHERE t.user_id = ? " +
+                        "ORDER BY t.created_at DESC";
+
+        List<TransactionFullView> list = new ArrayList<>();
+
+        try (Connection con = db.getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+
+            st.setInt(1, userId);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new TransactionFullView(
+                            rs.getInt("id"),
+                            rs.getString("type"),
+                            rs.getDouble("amount"),
+                            rs.getTimestamp("created_at"),
+                            rs.getString("comment"),
+                            rs.getString("from_account_name"),
+                            rs.getString("to_account_name"),
+                            rs.getString("category_name"),
+                            rs.getString("category_type")
+                    ));
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("getFullByUserId error: " + e.getMessage());
+        }
+
+        return list;
+    }
+
 
     private Transaction mapTransaction(ResultSet rs) throws SQLException {
         Integer categoryId = null;
