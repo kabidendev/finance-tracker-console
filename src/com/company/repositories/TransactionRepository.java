@@ -30,7 +30,7 @@ public class TransactionRepository implements ITransactionRepository {
             st.setString(2, t.getType().name());
             st.setDouble(3, t.getAmount());
 
-            // nullable ints
+
             if (t.getCategoryId() == null) st.setNull(4, Types.INTEGER);
             else st.setInt(4, t.getCategoryId());
 
@@ -40,7 +40,7 @@ public class TransactionRepository implements ITransactionRepository {
             if (t.getAccountToId() == null) st.setNull(6, Types.INTEGER);
             else st.setInt(6, t.getAccountToId());
 
-            // comment nullable
+
             if (t.getComment() == null) st.setNull(7, Types.VARCHAR);
             else st.setString(7, t.getComment());
 

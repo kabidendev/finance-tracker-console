@@ -111,7 +111,7 @@ public class AccountRepository implements IAccountRepository {
         }
     }
 
-    // ---- если твой IRepository требует другие методы, просто оставь заглушки ----
+
     public boolean update(Account entity) { return false; }
     public boolean delete(int id) { return false; }
 }
