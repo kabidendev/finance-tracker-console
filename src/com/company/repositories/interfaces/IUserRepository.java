@@ -5,7 +5,7 @@ import com.company.models.User;
 import java.util.List;
 
 public interface IUserRepository extends IRepository<User> {
-    User create(User user);
+    boolean create(User user);
     User getByEmail(String email);
     List<User> getAll();
 }

@@ -21,25 +21,43 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
-    public User create(User user) {
+    public boolean create(User user) {
         String sql = "INSERT INTO users (email, password, role) VALUES (?, ?, ?)";
+
         Role role = user.getRole() == null ? Role.USER : user.getRole();
+
         try (Connection connection = db.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
             statement.setString(1, user.getEmail());
             statement.setString(2, user.getPassword());
             statement.setString(3, role.name());
-            statement.executeUpdate();
+
+            int rowsAffected = statement.executeUpdate();
+
+            if (rowsAffected == 0) {
+                return false;
+            }
+
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (keys.next()) {
                     user.setId(keys.getInt(1));
                 }
             }
+
             user.setRole(role);
-            return user;
+
+            return true;
+
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return false;
         }
+    }
+
+    @Override
+    public User getById(int id) {
+        return null;
     }
 
     @Override

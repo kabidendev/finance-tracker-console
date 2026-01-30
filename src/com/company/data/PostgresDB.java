@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class PostgresDB implements IDB {
+    private static PostgresDB instance;
     private final String url;
     private final String username;
     private final String password;
@@ -16,7 +17,12 @@ public class PostgresDB implements IDB {
         this.username = username;
         this.password = password;
     }
-
+    public static synchronized PostgresDB getInstance(String url, String username, String password) {
+        if (instance == null) {
+            instance = new PostgresDB(url, username, password);
+        }
+        return instance;
+    }
     @Override
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(url, username, password);

@@ -2,6 +2,7 @@ package com.company;
 
 import com.company.controllers.AuthController;
 import com.company.controllers.CategoryController;
+import com.company.controllers.interfaces.*;
 import com.company.data.PostgresDB;
 import com.company.exceptions.AccessDeniedException;
 import com.company.exceptions.ValidationException;
@@ -20,7 +21,7 @@ public class MyApplication {
     private final CategoryController categoryController;
     private final Scanner scanner;
 
-    public MyApplication() {
+    public MyApplication(IAuthController authController, IAccountController accountController, ICategoryController categoryController, ITransactionController transactionController, IReportController reportController) {
         this(new AuthController(new UserRepository(
                 new PostgresDB("jdbc:postgresql://localhost:5432/finance_tracker", "postgres", "postgres")
         )), new CategoryController());

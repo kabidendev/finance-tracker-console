@@ -4,10 +4,10 @@ import com.company.controllers.interfaces.ITransactionController;
 import com.company.exceptions.NotEnoughMoneyException;
 import com.company.models.Account;
 import com.company.models.Transaction;
-import com.company.models.enums.TransactionType;
+
 import com.company.repositories.interfaces.IAccountRepository;
 import com.company.repositories.interfaces.ITransactionRepository;
-
+import com.company.utils.factories.TransactionFactory;
 import java.util.List;
 
 public class TransactionController implements ITransactionController {
@@ -39,10 +39,10 @@ public class TransactionController implements ITransactionController {
             return;
         }
 
-        Transaction t = new Transaction(
-                null, userId, TransactionType.INCOME, amount,
-                categoryId, null, accountToId,
-                null, comment
+        // Было: new Transaction(...)
+        // Стало:
+        Transaction t = TransactionFactory.createIncome(
+                userId, accountToId, categoryId, amount, comment
         );
 
         System.out.println(transactionRepo.create(t) ? "INCOME saved." : "INCOME not saved.");
@@ -71,10 +71,8 @@ public class TransactionController implements ITransactionController {
             return;
         }
 
-        Transaction t = new Transaction(
-                null, userId, TransactionType.EXPENSE, amount,
-                categoryId, accountFromId, null,
-                null, comment
+        Transaction t = TransactionFactory.createExpense(
+                userId, accountFromId, categoryId, amount, comment
         );
 
         System.out.println(transactionRepo.create(t) ? "EXPENSE saved." : "EXPENSE not saved.");
@@ -116,10 +114,8 @@ public class TransactionController implements ITransactionController {
             return;
         }
 
-        Transaction t = new Transaction(
-                null, userId, TransactionType.TRANSFER, amount,
-                null, fromAccountId, toAccountId,
-                null, comment
+        Transaction t = TransactionFactory.createTransfer(
+                userId, fromAccountId, toAccountId, amount, comment
         );
 
         System.out.println(transactionRepo.create(t) ? "TRANSFER saved." : "TRANSFER not saved.");
