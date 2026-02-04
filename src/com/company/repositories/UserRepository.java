@@ -22,16 +22,17 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public boolean create(User user) {
-        String sql = "INSERT INTO users (email, password, role) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
 
         Role role = user.getRole() == null ? Role.USER : user.getRole();
 
         try (Connection connection = db.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setString(1, user.getEmail());
-            statement.setString(2, user.getPassword());
-            statement.setString(3, role.name());
+            statement.setString(1, user.getName());
+            statement.setString(2, user.getEmail());
+            statement.setString(3, user.getPassword());
+            statement.setString(4, role.name());
 
             int rowsAffected = statement.executeUpdate();
 
@@ -62,7 +63,7 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public User getByEmail(String email) {
-        String sql = "SELECT id, email, password, role FROM users WHERE email = ?";
+        String sql = "SELECT id, name, email, password, role FROM users WHERE email = ?";
         try (Connection connection = db.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, email);
@@ -79,7 +80,7 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public List<User> getAll() {
-        String sql = "SELECT id, email, password, role FROM users ORDER BY id";
+        String sql = "SELECT id, name, email, password, role FROM users ORDER BY id";
         List<User> users = new ArrayList<>();
         try (Connection connection = db.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
@@ -95,6 +96,7 @@ public class UserRepository implements IUserRepository {
 
     private User mapUser(ResultSet resultSet) throws SQLException {
         int id = resultSet.getInt("id");
+        String name = resultSet.getString("name");
         String email = resultSet.getString("email");
         String password = resultSet.getString("password");
         String roleValue = resultSet.getString("role");
@@ -102,6 +104,6 @@ public class UserRepository implements IUserRepository {
         if (roleValue != null && !roleValue.isBlank()) {
             role = Role.valueOf(roleValue.trim().toUpperCase());
         }
-        return new User(id, email, password, role);
+        return new User(id, name, email, password, role);
     }
 }

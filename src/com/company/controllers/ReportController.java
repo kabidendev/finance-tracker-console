@@ -26,12 +26,23 @@ public class ReportController implements IReportController {
 
     @Override
     public Map<String, Double> getTopExpenseCategories(int userId) {
-        return transactionRepository.getFullByUserId(userId)
+        Map<String, Double> totals = transactionRepository.getFullByUserId(userId)
                 .stream()
                 .filter(t -> "EXPENSE".equalsIgnoreCase(t.getType()))
+                .filter(t -> t.getCategoryName() != null)
                 .collect(Collectors.groupingBy(
                         TransactionFullView::getCategoryName,
                         Collectors.summingDouble(TransactionFullView::getAmount)
+                ));
+
+        return totals.entrySet()
+                .stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (a, b) -> a,
+                        LinkedHashMap::new
                 ));
     }
 }

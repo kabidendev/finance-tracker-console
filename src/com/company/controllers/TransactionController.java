@@ -39,8 +39,6 @@ public class TransactionController implements ITransactionController {
             return;
         }
 
-        // Было: new Transaction(...)
-        // Стало:
         Transaction t = TransactionFactory.createIncome(
                 userId, accountToId, categoryId, amount, comment
         );

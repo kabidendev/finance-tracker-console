@@ -26,9 +26,9 @@ public class Main {
     public static void main(String[] args) {
         String url = "jdbc:postgresql://localhost:5432/finance-tracker";
         String user = "postgres";
-        String password = "20070728";
+        String password = "1234";
 
-        IDB db = new PostgresDB(url, user, password);
+        IDB db = PostgresDB.getInstance(url, user, password);
         DBInitializer initializer = new DBInitializer(db);
         initializer.initialize();
 
@@ -40,7 +40,7 @@ public class Main {
         ITransactionRepository transactionRepository = new TransactionRepository(db);
 
         IAccountController accountController = new AccountController(accountRepository);
-        ICategoryController categoryController = new CategoryController();
+        ICategoryController categoryController = new CategoryController(categoryRepository);
         ITransactionController transactionController = new TransactionController(transactionRepository, accountRepository);
         IReportController reportController = new ReportController(transactionRepository);
 
