@@ -4,6 +4,7 @@ import com.company.models.enums.Role;
 
 public class User {
     private int id;
+    private String name;
     private String email;
     private String password;
     private Role role;
@@ -11,14 +12,16 @@ public class User {
     public User() {
     }
 
-    public User(int id, String email, String password, Role role) {
+    public User(int id, String name, String email, String password, Role role) {
         this.id = id;
+        this.name = name;
         this.email = email;
         this.password = password;
         this.role = role == null ? Role.USER : role;
     }
 
-    public User(String email, String password, Role role) {
+    public User(String name, String email, String password, Role role) {
+        this.name = name;
         this.email = email;
         this.password = password;
         this.role = role == null ? Role.USER : role;
@@ -30,6 +33,14 @@ public class User {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -58,6 +69,6 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{id=" + id + ", email='" + email + "', role=" + role + "}";
+        return "User{id=" + id + ", name='" + name + "', email='" + email + "', role=" + role + "}";
     }
 }

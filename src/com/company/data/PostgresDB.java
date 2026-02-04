@@ -12,7 +12,7 @@ public class PostgresDB implements IDB {
     private final String username;
     private final String password;
 
-    public PostgresDB(String url, String username, String password) {
+    private PostgresDB(String url, String username, String password) {
         this.url = url;
         this.username = username;
         this.password = password;
