@@ -2,6 +2,7 @@ package com.company.utils.factories;
 
 import com.company.models.Transaction;
 import com.company.models.enums.TransactionType;
+import com.company.repositories.AccountRepository;
 
 public class TransactionFactory {
 
@@ -23,7 +24,12 @@ public class TransactionFactory {
                 accountToId,
                 null,
                 comment
-        );
+        ) {
+            @Override
+            public void execute(AccountRepository accountRepo) {
+
+            }
+        };
     }
 
 
@@ -44,7 +50,12 @@ public class TransactionFactory {
                 null,
                 null,
                 comment
-        );
+        ) {
+            @Override
+            public void execute(AccountRepository accountRepo) {
+
+            }
+        };
     }
 
 
@@ -65,6 +76,11 @@ public class TransactionFactory {
                 toAccountId,
                 null,
                 comment
-        );
+        ) {
+            @Override
+            public void execute(AccountRepository accountRepo) {
+
+            }
+        };
     }
 }

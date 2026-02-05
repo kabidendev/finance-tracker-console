@@ -2,12 +2,14 @@ package com.company.controllers;
 
 import com.company.controllers.interfaces.ITransactionController;
 import com.company.exceptions.NotEnoughMoneyException;
-import com.company.models.Account;
-import com.company.models.Transaction;
-
+import com.company.exceptions.NotFoundException;
+import com.company.exceptions.ValidationException;
+import com.company.models.*;
 import com.company.repositories.interfaces.IAccountRepository;
 import com.company.repositories.interfaces.ITransactionRepository;
-import com.company.utils.factories.TransactionFactory;
+import com.company.repositories.AccountRepository;
+
+
 import java.util.List;
 
 public class TransactionController implements ITransactionController {
@@ -22,101 +24,58 @@ public class TransactionController implements ITransactionController {
 
     @Override
     public void addIncome(int userId, int accountToId, int categoryId, double amount, String comment) {
-        if (amount <= 0) {
-            System.out.println("Amount must be > 0");
-            return;
+        try {
+            Transaction tx = new IncomeTransaction(userId, amount, categoryId, accountToId, comment);
+
+            tx.execute((AccountRepository) accountRepo);
+
+            boolean saved = transactionRepo.create(tx);
+            System.out.println(saved ? "INCOME saved." : "INCOME not saved.");
+
+        } catch (NotEnoughMoneyException | NotFoundException | ValidationException e) {
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Ошибка при добавлении дохода: " + e.getMessage());
         }
-
-        Account to = accountRepo.getById(accountToId);
-        if (to == null) {
-            System.out.println("Account not found: " + accountToId);
-            return;
-        }
-
-        double newBalance = to.getBalance() + amount;
-        if (!accountRepo.updateBalance(accountToId, newBalance)) {
-            System.out.println("Failed to update balance");
-            return;
-        }
-
-        Transaction t = TransactionFactory.createIncome(
-                userId, accountToId, categoryId, amount, comment
-        );
-
-        System.out.println(transactionRepo.create(t) ? "INCOME saved." : "INCOME not saved.");
     }
 
     @Override
     public void addExpense(int userId, int accountFromId, int categoryId, double amount, String comment) {
-        if (amount <= 0) {
-            System.out.println("Amount must be > 0");
-            return;
+        try {
+            Transaction tx = new ExpenseTransaction(userId, amount, categoryId, accountFromId, comment);
+
+            tx.execute((AccountRepository) accountRepo);
+
+            boolean saved = transactionRepo.create(tx);
+            System.out.println(saved ? "EXPENSE saved." : "EXPENSE not saved.");
+
+        } catch (NotEnoughMoneyException | NotFoundException | ValidationException e) {
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Ошибка при добавлении расхода: " + e.getMessage());
         }
-
-        Account from = accountRepo.getById(accountFromId);
-        if (from == null) {
-            System.out.println("Account not found: " + accountFromId);
-            return;
-        }
-
-        if (from.getBalance() < amount) {
-            throw new NotEnoughMoneyException();
-        }
-
-        double newBalance = from.getBalance() - amount;
-        if (!accountRepo.updateBalance(accountFromId, newBalance)) {
-            System.out.println("Failed to update balance");
-            return;
-        }
-
-        Transaction t = TransactionFactory.createExpense(
-                userId, accountFromId, categoryId, amount, comment
-        );
-
-        System.out.println(transactionRepo.create(t) ? "EXPENSE saved." : "EXPENSE not saved.");
     }
 
     @Override
     public void transfer(int userId, int fromAccountId, int toAccountId, double amount, String comment) {
-        if (amount <= 0) {
-            System.out.println("Amount must be > 0");
-            return;
+        try {
+            if (fromAccountId == toAccountId) {
+                System.out.println("fromAccountId must be different from toAccountId");
+                return;
+            }
+
+            Transaction tx = new TransferTransaction(userId, amount, fromAccountId, toAccountId, comment);
+
+            tx.execute((AccountRepository) accountRepo);
+
+            boolean saved = transactionRepo.create(tx);
+            System.out.println(saved ? "TRANSFER saved." : "TRANSFER not saved.");
+
+        } catch (NotEnoughMoneyException | NotFoundException | ValidationException e) {
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Ошибка при переводе: " + e.getMessage());
         }
-
-        if (fromAccountId == toAccountId) {
-            System.out.println("fromAccountId must be different from toAccountId");
-            return;
-        }
-
-        Account from = accountRepo.getById(fromAccountId);
-        Account to = accountRepo.getById(toAccountId);
-
-        if (from == null || to == null) {
-            System.out.println("Account not found");
-            return;
-        }
-
-        if (from.getBalance() < amount) {
-            throw new NotEnoughMoneyException();
-        }
-
-        double fromNew = from.getBalance() - amount;
-        double toNew = to.getBalance() + amount;
-
-        if (!accountRepo.updateBalance(fromAccountId, fromNew)) {
-            System.out.println("Failed to update FROM balance");
-            return;
-        }
-        if (!accountRepo.updateBalance(toAccountId, toNew)) {
-            System.out.println("Failed to update TO balance");
-            return;
-        }
-
-        Transaction t = TransactionFactory.createTransfer(
-                userId, fromAccountId, toAccountId, amount, comment
-        );
-
-        System.out.println(transactionRepo.create(t) ? "TRANSFER saved." : "TRANSFER not saved.");
     }
 
     @Override
