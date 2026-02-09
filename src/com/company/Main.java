@@ -26,7 +26,7 @@ public class Main {
     public static void main(String[] args) {
         String url = "jdbc:postgresql://localhost:5432/finance-tracker";
         String user = "postgres";
-        String password = "1234";
+        String password = "20070728";
 
         IDB db = PostgresDB.getInstance(url, user, password);
         DBInitializer initializer = new DBInitializer(db);

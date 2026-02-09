@@ -169,7 +169,12 @@ public class TransactionRepository implements ITransactionRepository {
                 toId,
                 rs.getTimestamp("created_at"),
                 rs.getString("comment")
-        );
+        ) {
+            @Override
+            public void execute(AccountRepository accountRepo) {
+
+            }
+        };
     }
 }
 
